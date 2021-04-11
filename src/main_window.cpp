@@ -25,6 +25,8 @@
 #include "settings_dialog.hpp"
 #include "simple_logger.hpp"
 #include "whats_new_dlg.hpp"
+#include "duqfdoublespinbox.h"
+#include "duqfspinbox.h"
 
 #include <QAction>
 #include <QApplication>
@@ -40,6 +42,7 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QWidgetAction>
+#include <QSlider>
 
 #include <cassert>
 
@@ -59,10 +62,10 @@ MainWindow::MainWindow()
   , m_saveAsAction(new QAction(tr("&Save as") + threeDots, this))
   , m_undoAction(new QAction(tr("Undo"), this))
   , m_redoAction(new QAction(tr("Redo"), this))
-  , m_edgeWidthSpinBox(new QDoubleSpinBox(this))
-  , m_cornerRadiusSpinBox(new QSpinBox(this))
+  , m_edgeWidthSpinBox(new DuQFDoubleSpinBox(this))
+  , m_cornerRadiusSpinBox(new DuQFSpinBox(this))
   , m_gridSizeSpinBox(new QSpinBox(this))
-  , m_textSizeSpinBox(new QSpinBox(this))
+  , m_textSizeSpinBox(new DuQFSpinBox(this))
   , m_copyOnDragCheckBox(new QCheckBox(tr("Copy on drag"), this))
   , m_showGridCheckBox(new QCheckBox(tr("Show grid"), this))
 {
@@ -192,7 +195,7 @@ QWidgetAction * MainWindow::createCornerRadiusAction()
 {
     m_cornerRadiusSpinBox->setMinimum(0);
     m_cornerRadiusSpinBox->setMaximum(Constants::Node::MAX_CORNER_RADIUS);
-    m_cornerRadiusSpinBox->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    m_cornerRadiusSpinBox->spinBox()->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     const auto dummyWidget = new QWidget(this);
     const auto layout = new QHBoxLayout(dummyWidget);
@@ -205,19 +208,17 @@ QWidgetAction * MainWindow::createCornerRadiusAction()
     const auto action = new QWidgetAction(this);
     action->setDefaultWidget(dummyWidget);
 
-    // The ugly cast is needed because there are QSpinBox::valueChanged(int) and QSpinBox::valueChanged(QString)
-    // In Qt > 5.10 one can use QOverload<double>::of(...)
-    connect(m_cornerRadiusSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::cornerRadiusChanged);
+    connect(m_cornerRadiusSpinBox, &DuQFSpinBox::valueChanged, this, &MainWindow::cornerRadiusChanged);
 
     return action;
 }
 
 QWidgetAction * MainWindow::createEdgeWidthAction()
 {
-    m_edgeWidthSpinBox->setSingleStep(Constants::Edge::STEP);
+    m_edgeWidthSpinBox->spinBox()->setSingleStep(Constants::Edge::STEP);
     m_edgeWidthSpinBox->setMinimum(Constants::Edge::MIN_SIZE);
     m_edgeWidthSpinBox->setMaximum(Constants::Edge::MAX_SIZE);
-    m_edgeWidthSpinBox->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    m_edgeWidthSpinBox->spinBox()->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     const auto dummyWidget = new QWidget(this);
     const auto layout = new QHBoxLayout(dummyWidget);
@@ -230,9 +231,7 @@ QWidgetAction * MainWindow::createEdgeWidthAction()
     const auto action = new QWidgetAction(this);
     action->setDefaultWidget(dummyWidget);
 
-    // The ugly cast is needed because there are QDoubleSpinBox::valueChanged(double) and QDoubleSpinBox::valueChanged(QString)
-    // In Qt > 5.10 one can use QOverload<double>::of(...)
-    connect(m_edgeWidthSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &MainWindow::edgeWidthChanged);
+    connect(m_edgeWidthSpinBox, &DuQFDoubleSpinBox::valueChanged, this, &MainWindow::edgeWidthChanged);
 
     return action;
 }
@@ -241,7 +240,7 @@ QWidgetAction * MainWindow::createTextSizeAction()
 {
     m_textSizeSpinBox->setMinimum(Constants::Text::MIN_SIZE);
     m_textSizeSpinBox->setMaximum(Constants::Text::MAX_SIZE);
-    m_textSizeSpinBox->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    m_textSizeSpinBox->spinBox()->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     const auto dummyWidget = new QWidget(this);
     const auto layout = new QHBoxLayout(dummyWidget);
@@ -254,9 +253,7 @@ QWidgetAction * MainWindow::createTextSizeAction()
     const auto action = new QWidgetAction(this);
     action->setDefaultWidget(dummyWidget);
 
-    // The ugly cast is needed because there are QSpinBox::valueChanged(int) and QSpinBox::valueChanged(QString)
-    // In Qt > 5.10 one can use QOverload<double>::of(...)
-    connect(m_textSizeSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::textSizeChanged);
+    connect(m_textSizeSpinBox, &DuQFSpinBox::valueChanged, this, &MainWindow::textSizeChanged);
 
     return action;
 }
